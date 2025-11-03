@@ -1,0 +1,51 @@
+// Protocol Buffers v3 syntax
+syntax = "proto3";
+
+// Namespace for generated types
+package todoPackage;
+
+// The gRPC service "contract" both client & server agree on.
+// We include examples of:
+// 1) Unary RPCs (request -> single response)
+// 2) Server-streaming RPC (request -> stream of responses)
+// 3) Client-streaming RPC (stream of requests -> single response)
+service Todo {
+  // Unary: client sends one request, server returns one TodoItem
+  rpc createTodo (CreateTodoRequest) returns (TodoItem);
+
+  // Unary: client asks for all todos at once
+  rpc readTodos (Empty) returns (TodoItems);
+
+  // Server streaming: server streams each TodoItem one-by-one
+  rpc readTodosStream (Empty) returns (stream TodoItem);
+
+  // Client streaming: client streams multiple CreateTodoRequest messages,
+  // server returns a summary with a count
+  rpc createTodosStream (stream CreateTodoRequest) returns (CreateTodosSummary);
+}
+
+// Empty message for RPCs that don't need input
+message Empty {}
+
+// Request used to create a todo (we only need text)
+message CreateTodoRequest {
+  string text = 1;
+}
+
+// A Todo item stored/returned by the service
+message TodoItem {
+  int32 id = 1;          // server-assigned ID
+  string text = 2;       // task text
+  bool done = 3;         // completion flag
+  int64 created_at = 4;  // epoch millis for demo
+}
+
+// Returned by readTodos (unary) as a single list
+message TodoItems {
+  repeated TodoItem items = 1;
+}
+
+// Returned by createTodosStream with how many were created
+message CreateTodosSummary {
+  int32 created = 1;
+}
